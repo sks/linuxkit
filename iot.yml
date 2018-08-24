@@ -1,0 +1,62 @@
+kernel:
+  image: linuxkit/kernel:4.14.63
+  cmdline: "console=tty0 console=ttyS0 console=ttyAMA0"
+init:
+  - linuxkit/init:v0.6
+  - linuxkit/runc:v0.6
+  - linuxkit/containerd:v0.6
+  - linuxkit/ca-certificates:v0.6
+onboot:
+  - name: sysctl
+    image: linuxkit/sysctl:v0.6
+  - name: netdev
+    image: linuxkit/modprobe:v0.6
+    # https://github.com/linuxkit/linuxkit/blob/master/docs/platform-rpi3.md#networking
+    command: ["modprobe", "smsc95xx"]
+  - name: dhcpcd
+    image: linuxkit/dhcpcd:v0.6
+    # Halts until dhcpcd can resolve ip address
+    command: ["/sbin/dhcpcd", "--nobackground", "-f", "/dhcpcd.conf", "-1"]
+  - name: format
+    image: linuxkit/format:v0.6
+  - name: mount-lib
+    image: linuxkit/mount:v0.6
+    command: ["/usr/bin/mountie", "/var/lib"]
+    # Mount /var/log to the first found disk device
+  - name: mount-log
+    image: linuxkit/mount:v0.6
+    command: ["/usr/bin/mountie", "/var/log"]
+
+services:
+  - name: getty
+    image: linuxkit/getty:v0.6
+    env:
+    # Makes the terminal open without password prompt
+     - INSECURE=true
+  - name: ntpd
+    image: linuxkit/openntpd:v0.6
+  - name: dhcpcd
+    image: linuxkit/dhcpcd:v0.6
+  - name: mosquitto
+    image: eclipse-mosquitto:1.4.12
+    capabilities:
+      - CAP_NET_BIND_SERVICE
+      - CAP_CHOWN
+      - CAP_SETUID
+      - CAP_SETGID
+      - CAP_DAC_OVERRIDE
+    net: host
+    pid: host
+    runtime:
+      mkdir: ["/var/lib/volumes"]
+    binds:
+      - /tmp:/tmp # To be able to read temporary fifo log files
+files:
+  - path: /etc/issue
+    contents: "welcome to EliotOS"
+  - path: /etc/machine-id
+    contents: "todo-generate"
+    mode: "0600"
+trust:
+  org:
+    - linuxkit

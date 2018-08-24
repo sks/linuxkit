@@ -1,0 +1,11 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - curl -J -L -o $HOME/bin/linuxkit https://github.com/linuxkit/linuxkit/releases/download/v0.6/linuxkit-linux-amd64
+  - chmod +x $HOME/bin/linuxkit
+  - which linuxkit
+
+script: make build
