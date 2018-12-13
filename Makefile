@@ -1,7 +1,7 @@
 .DEFAULT_GOAL=start
 
 build:
-	linuxkit build iot.yml
+	linuxkit build -disable-content-trust iot.yml
 
 clean:
 	rm -rf iot-*

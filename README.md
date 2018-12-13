@@ -7,7 +7,7 @@
 - Install [linuxkit](https://github.com/linuxkit/linuxkit)
 
 ```sh
-rew tap linuxkit/linuxkit
+brew tap linuxkit/linuxkit
 brew install --HEAD linuxkit
 ```
 
