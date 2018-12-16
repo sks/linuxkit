@@ -1,0 +1,20 @@
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - curl -J -L -o $HOME/bin/linuxkit https://github.com/linuxkit/linuxkit/releases/download/v0.6/linuxkit-linux-amd64
+  - chmod +x $HOME/bin/linuxkit
+  - which linuxkit
+
+script: 
+  - make all KUBE_RUNTIME=cri-containerd
+
+deploy:
+  provider: releases
+  api_key: "${gh_apikey}"
+  file: "kube-node.iso"
+  skip_cleanup: true
+  on:
+    tags: true
